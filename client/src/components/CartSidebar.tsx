@@ -3,6 +3,7 @@ import { CartItem } from "../types";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
 import { Separator } from "./ui/separator";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface CartSidebarProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export function CartSidebar({
   onRemoveItem,
   onCheckout,
 }: CartSidebarProps) {
+  const { t } = useLanguage();
   const total = cartItems.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
     0
@@ -30,13 +32,13 @@ export function CartSidebar({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-full sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle>Shopping Cart ({cartItems.length} items)</SheetTitle>
+          <SheetTitle>{t.shoppingCart} ({cartItems.length} {t.items})</SheetTitle>
         </SheetHeader>
 
         <div className="flex flex-col h-full pt-6">
           {cartItems.length === 0 ? (
             <div className="flex-1 flex items-center justify-center">
-              <p className="text-muted-foreground">Your cart is empty</p>
+              <p className="text-muted-foreground">{t.emptyCart}</p>
             </div>
           ) : (
             <>
@@ -96,21 +98,21 @@ export function CartSidebar({
                 <Separator className="mb-4" />
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between text-sm">
-                    <span>Subtotal</span>
+                    <span>{t.subtotal}</span>
                     <span>₹{total.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span>Delivery Fee</span>
+                    <span>{t.deliveryFee}</span>
                     <span>₹50.00</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between font-semibold">
-                    <span>Total</span>
+                    <span>{t.total}</span>
                     <span>₹{(total + 50).toFixed(2)}</span>
                   </div>
                 </div>
                 <Button className="w-full" size="lg" onClick={onCheckout}>
-                  Proceed to Checkout
+                  {t.proceedToCheckout}
                 </Button>
               </div>
             </>

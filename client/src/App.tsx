@@ -15,6 +15,10 @@ import { categories } from "./lib/constants";
 import { getFarmers, getProducts } from "./lib/api";
 import { Product, Farmer, CartItem } from "./types";
 import { toast } from "sonner";
+import { useLanguage } from "./contexts/LanguageContext";
+import { Language } from "./lib/translations";
+import { ToggleGroup, ToggleGroupItem } from "./components/ui/toggle-group";
+import { AIAssistant } from "./components/AIAssistant";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -31,6 +35,7 @@ export default function App() {
   const [farmers, setFarmers] = useState<Farmer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { language, setLanguage, t } = useLanguage();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -136,20 +141,27 @@ export default function App() {
       />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-green-50 to-background py-12 md:py-16">
+      <section className="bg-gradient-to-b from-green-50 to-background py-12 md:py-16 relative">
+        <div className="absolute top-4 right-4 z-40 hidden md:block">
+          <ToggleGroup type="single" value={language} onValueChange={(val: Language) => val && setLanguage(val)} className="bg-white rounded-full p-1 shadow-md border border-green-100">
+            <ToggleGroupItem value="en" className="rounded-full px-3 py-1 data-[state=on]:bg-green-600 data-[state=on]:text-white text-xs font-bold">EN</ToggleGroupItem>
+            <ToggleGroupItem value="hi" className="rounded-full px-3 py-1 data-[state=on]:bg-green-600 data-[state=on]:text-white text-xs font-bold">HI</ToggleGroupItem>
+            <ToggleGroupItem value="kn" className="rounded-full px-3 py-1 data-[state=on]:bg-green-600 data-[state=on]:text-white text-xs font-bold">KN</ToggleGroupItem>
+          </ToggleGroup>
+        </div>
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-semibold mb-4">
-              Fresh from Local Farms
+              {t.heroTitle}
             </h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Connect directly with farmers in your region. Fresh, sustainable, and delivered to your door.
+              {t.heroSubtitle}
             </p>
             <div className="relative max-w-xl mx-auto">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Search for products or farmers..."
+                placeholder={t.searchPlaceholder}
                 className="pl-10 h-12"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -164,8 +176,8 @@ export default function App() {
         <div className="container mx-auto px-4">
           <Tabs defaultValue="products" className="w-full">
             <TabsList className="mb-8">
-              <TabsTrigger value="products">Browse Products</TabsTrigger>
-              <TabsTrigger value="farmers">Meet the Farmers</TabsTrigger>
+              <TabsTrigger value="products">{t.browseProducts}</TabsTrigger>
+              <TabsTrigger value="farmers">{t.meetFarmers}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="products" className="space-y-6">
@@ -177,7 +189,7 @@ export default function App() {
                     variant={selectedCategory === category ? "default" : "outline"}
                     onClick={() => setSelectedCategory(category)}
                   >
-                    {category}
+                    {category === "All" ? t.all : category}
                   </Button>
                 ))}
               </div>
@@ -195,16 +207,16 @@ export default function App() {
 
               {filteredProducts.length === 0 && (
                 <div className="text-center py-12">
-                  <p className="text-muted-foreground">No products found matching your criteria.</p>
+                  <p className="text-muted-foreground">{t.noProductsFound}</p>
                 </div>
               )}
             </TabsContent>
 
             <TabsContent value="farmers" className="space-y-6">
               <div>
-                <h3 className="font-semibold text-xl mb-4">Local Farmers</h3>
+                <h3 className="font-semibold text-xl mb-4">{t.localFarmers}</h3>
                 <p className="text-muted-foreground mb-6">
-                  Get to know the farmers who grow your food. Each farm is committed to sustainable practices and quality produce.
+                  {t.farmersDescription}
                 </p>
               </div>
 
@@ -227,21 +239,21 @@ export default function App() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h4 className="font-semibold mb-3">About FarmDirect</h4>
+              <h4 className="font-semibold mb-3">{t.aboutFarmDirect}</h4>
               <p className="text-sm text-muted-foreground">
-                Connecting local farmers with consumers for fresh, sustainable produce delivered directly to your door.
+                {t.aboutDescription}
               </p>
             </div>
             <div>
-              <h4 className="font-semibold mb-3">For Farmers</h4>
+              <h4 className="font-semibold mb-3">{t.forFarmers}</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>List your products</li>
-                <li>Reach local customers</li>
-                <li>Grow your business</li>
+                <li>{t.listProducts}</li>
+                <li>{t.reachCustomers}</li>
+                <li>{t.growBusiness}</li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-3">Contact</h4>
+              <h4 className="font-semibold mb-3">{t.contact}</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>support@farmdirect.com</li>
                 <li>(555) 987-6543</li>
@@ -250,8 +262,8 @@ export default function App() {
             </div>
           </div>
           <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-            <p className="mb-2">© 2026 FarmDirect. All rights reserved.</p>
-            <p>Created by <span className="font-semibold text-green-700">Team Innovators</span></p>
+            <p className="mb-2">© 2026 {t.title}. {t.rightsReserved}</p>
+            <p>{t.createdBy} <span className="font-semibold text-green-700">{t.teamInnovators}</span></p>
           </div>
         </div>
       </footer>
@@ -287,12 +299,12 @@ export default function App() {
         }}
       />
 
-      {/* Farmer Dialog */}
       <FarmerDialog
         farmer={selectedFarmer}
         isOpen={isFarmerDialogOpen}
         onClose={() => setIsFarmerDialogOpen(false)}
       />
+      <AIAssistant />
     </div>
   );
 }

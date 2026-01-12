@@ -1,12 +1,18 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useGoogleLogin } from "@react-oauth/google";
-import { Sprout, UserCircle, Tractor } from "lucide-react";
+import { Sprout, UserCircle, Tractor, Languages } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { Language, translations } from "../lib/translations";
+import { useLanguage } from "../contexts/LanguageContext";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "./ui/toggle-group";
 
 interface LoginPageProps {
   onLogin: (userType: "customer" | "farmer", userData: any) => void;
@@ -15,6 +21,7 @@ interface LoginPageProps {
 export function LoginPage({ onLogin }: LoginPageProps) {
   const [step, setStep] = useState<"select" | "customer" | "farmer-login" | "farmer-register">("select");
   const [loading, setLoading] = useState(false);
+  const { language, setLanguage, t } = useLanguage();
 
   // Farmer Registration State
   const [registerData, setRegisterData] = useState({
@@ -138,6 +145,15 @@ export function LoginPage({ onLogin }: LoginPageProps) {
           animate="visible"
           variants={containerVariants}
         >
+          {/* Global Language Selector - Clear 3-Button Option */}
+          <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
+            <ToggleGroup type="single" value={language} onValueChange={(val: Language) => val && setLanguage(val)} className="bg-white/90 backdrop-blur-md rounded-full p-1 shadow-xl border border-white/50">
+              <ToggleGroupItem value="en" className="rounded-full px-4 py-2 data-[state=on]:bg-green-600 data-[state=on]:text-white transition-all text-xs font-bold">EN</ToggleGroupItem>
+              <ToggleGroupItem value="hi" className="rounded-full px-4 py-2 data-[state=on]:bg-green-600 data-[state=on]:text-white transition-all text-xs font-bold">HI</ToggleGroupItem>
+              <ToggleGroupItem value="kn" className="rounded-full px-4 py-2 data-[state=on]:bg-green-600 data-[state=on]:text-white transition-all text-xs font-bold">KN</ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+
           <div className="text-center mb-12">
             <motion.div
               className="flex items-center justify-center gap-2 mb-6"
@@ -148,9 +164,9 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 <Sprout className="w-14 h-14 text-green-600" />
               </div>
             </motion.div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-4 text-white tracking-tight drop-shadow-md">FarmDirect</h1>
+            <h1 className="text-5xl md:text-6xl font-bold mb-4 text-white tracking-tight drop-shadow-md">{t.title}</h1>
             <p className="text-xl md:text-2xl text-white/90 font-medium drop-shadow-sm">
-              Connecting local farmers with consumers
+              {t.subtitle}
             </p>
           </div>
 
@@ -164,17 +180,16 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                   <div className="flex items-center justify-center w-20 h-20 rounded-full bg-blue-100 mb-6 mx-auto">
                     <UserCircle className="w-12 h-12 text-blue-600" />
                   </div>
-                  <CardTitle className="text-center text-2xl">I'm a Customer</CardTitle>
+                  <CardTitle className="text-center text-2xl">{t.customerCardTitle}</CardTitle>
                   <CardDescription className="text-center text-base">
-                    Browse and buy fresh produce from local farms
+                    {t.customerCardDescription}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3 text-sm text-muted-foreground">
-                    <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Access to regional produce</li>
-                    <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Direct from farmers</li>
-                    <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Fresh and sustainable</li>
-                    <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Delivery to your door</li>
+                    {t.customerBenefits.map((benefit, i) => (
+                      <li key={i} className="flex items-center gap-2"><span className="text-green-500">✓</span> {benefit}</li>
+                    ))}
                   </ul>
                 </CardContent>
               </Card>
@@ -189,17 +204,16 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                   <div className="flex items-center justify-center w-20 h-20 rounded-full bg-green-100 mb-6 mx-auto">
                     <Tractor className="w-12 h-12 text-green-600" />
                   </div>
-                  <CardTitle className="text-center text-2xl">I'm a Farmer</CardTitle>
+                  <CardTitle className="text-center text-2xl">{t.farmerCardTitle}</CardTitle>
                   <CardDescription className="text-center text-base">
-                    Sell your produce directly to local consumers
+                    {t.farmerCardDescription}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3 text-sm text-muted-foreground">
-                    <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Reach local customers</li>
-                    <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Fair prices for your produce</li>
-                    <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Manage your inventory</li>
-                    <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Build your farm brand</li>
+                    {t.farmerBenefits.map((benefit, i) => (
+                      <li key={i} className="flex items-center gap-2"><span className="text-green-500">✓</span> {benefit}</li>
+                    ))}
                   </ul>
                 </CardContent>
               </Card>
@@ -207,8 +221,12 @@ export function LoginPage({ onLogin }: LoginPageProps) {
           </div>
         </motion.div>
 
-        <div className="mt-12 text-center text-sm text-white/80 relative z-10">
-          <p className="drop-shadow-sm">Created by <span className="font-bold text-white">Team Innovators</span></p>
+        <div className="mt-12 text-center relative z-10">
+          <div className="inline-block bg-white/80 backdrop-blur-sm px-6 py-2 rounded-full border border-gray-200 shadow-lg">
+            <p className="text-sm text-gray-800 font-medium">
+              {t.createdBy} <span className="font-bold text-green-700 uppercase tracking-wider">{t.teamInnovators}</span>
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -216,40 +234,58 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
   if (step === "customer") {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-green-50 to-background flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-b from-green-50 to-background flex flex-col items-center justify-center p-4 relative">
+        <div className="absolute top-4 right-4 z-50">
+          <ToggleGroup type="single" value={language} onValueChange={(val: Language) => val && setLanguage(val)} className="bg-white rounded-full p-1 shadow-md border border-green-100">
+            <ToggleGroupItem value="en" className="rounded-full px-3 py-1 data-[state=on]:bg-green-600 data-[state=on]:text-white text-xs font-bold">EN</ToggleGroupItem>
+            <ToggleGroupItem value="hi" className="rounded-full px-3 py-1 data-[state=on]:bg-green-600 data-[state=on]:text-white text-xs font-bold">HI</ToggleGroupItem>
+            <ToggleGroupItem value="kn" className="rounded-full px-3 py-1 data-[state=on]:bg-green-600 data-[state=on]:text-white text-xs font-bold">KN</ToggleGroupItem>
+          </ToggleGroup>
+        </div>
         <motion.div initial="hidden" animate="visible" variants={containerVariants} className="w-full max-w-md">
           <Card className="w-full">
             <CardHeader>
-              <Button variant="ghost" size="sm" onClick={() => setStep("select")} className="mb-2 w-fit">← Back</Button>
-              <CardTitle>Customer Login</CardTitle>
-              <CardDescription>Sign in with your Google account</CardDescription>
+              <Button variant="ghost" size="sm" onClick={() => setStep("select")} className="mb-2 w-fit">← {t.back}</Button>
+              <CardTitle>{t.customerLoginTitle}</CardTitle>
+              <CardDescription>{t.customerLoginDescription}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <Button className="w-full" size="lg" onClick={() => handleGoogleLogin()}>
-                Continue with Google
+                {t.continueWithGoogle}
               </Button>
             </CardContent>
           </Card>
         </motion.div>
-        <div className="mt-8 text-sm text-muted-foreground">Created by <span className="font-semibold">Team Innovators</span></div>
+        <div className="mt-8 text-center">
+          <p className="text-sm text-gray-600 font-medium italic">
+            {t.createdBy} <span className="font-bold text-green-700 not-italic">{t.teamInnovators}</span>
+          </p>
+        </div>
       </div>
     );
   }
 
   if (step === "farmer-login") {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-green-50 to-background flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-b from-green-50 to-background flex flex-col items-center justify-center p-4 relative">
+        <div className="absolute top-4 right-4 z-50">
+          <ToggleGroup type="single" value={language} onValueChange={(val: Language) => val && setLanguage(val)} className="bg-white rounded-full p-1 shadow-md border border-green-100">
+            <ToggleGroupItem value="en" className="rounded-full px-3 py-1 data-[state=on]:bg-green-600 data-[state=on]:text-white text-xs font-bold">EN</ToggleGroupItem>
+            <ToggleGroupItem value="hi" className="rounded-full px-3 py-1 data-[state=on]:bg-green-600 data-[state=on]:text-white text-xs font-bold">HI</ToggleGroupItem>
+            <ToggleGroupItem value="kn" className="rounded-full px-3 py-1 data-[state=on]:bg-green-600 data-[state=on]:text-white text-xs font-bold">KN</ToggleGroupItem>
+          </ToggleGroup>
+        </div>
         <motion.div initial="hidden" animate="visible" variants={containerVariants} className="w-full max-w-md">
           <Card className="w-full">
             <CardHeader>
-              <Button variant="ghost" size="sm" onClick={() => setStep("select")} className="mb-2 w-fit">← Back</Button>
-              <CardTitle>Farmer Login</CardTitle>
-              <CardDescription>Enter your credentials to access your dashboard</CardDescription>
+              <Button variant="ghost" size="sm" onClick={() => setStep("select")} className="mb-2 w-fit">← {t.back}</Button>
+              <CardTitle>{t.farmerLoginTitle}</CardTitle>
+              <CardDescription>{t.farmerLoginDescription}</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleFarmerLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
+                  <Label htmlFor="email">{t.email}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -259,7 +295,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">{t.password}</Label>
                   <Input
                     id="password"
                     type="password"
@@ -269,37 +305,48 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                   />
                 </div>
                 <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                  {loading ? "Logging in..." : "Log In"}
+                  {loading ? t.loggingIn : t.login}
                 </Button>
                 <div className="text-center text-sm">
-                  Don't have an account?{" "}
+                  {t.noAccount}{" "}
                   <button type="button" onClick={() => setStep("farmer-register")} className="text-green-600 hover:underline">
-                    Register here
+                    {t.registerHere}
                   </button>
                 </div>
               </form>
             </CardContent>
           </Card>
         </motion.div>
-        <div className="mt-8 text-sm text-muted-foreground">Created by <span className="font-semibold">Team Innovators</span></div>
+        <div className="mt-8 text-center">
+          <p className="text-sm text-gray-600 font-medium italic">
+            {t.createdBy} <span className="font-bold text-green-700 not-italic">{t.teamInnovators}</span>
+          </p>
+        </div>
       </div>
     );
   }
 
   if (step === "farmer-register") {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-green-50 to-background flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-b from-green-50 to-background flex flex-col items-center justify-center p-4 relative">
+        <div className="absolute top-4 right-4 z-50">
+          <ToggleGroup type="single" value={language} onValueChange={(val: Language) => val && setLanguage(val)} className="bg-white rounded-full p-1 shadow-md border border-green-100">
+            <ToggleGroupItem value="en" className="rounded-full px-3 py-1 data-[state=on]:bg-green-600 data-[state=on]:text-white text-xs font-bold">EN</ToggleGroupItem>
+            <ToggleGroupItem value="hi" className="rounded-full px-3 py-1 data-[state=on]:bg-green-600 data-[state=on]:text-white text-xs font-bold">HI</ToggleGroupItem>
+            <ToggleGroupItem value="kn" className="rounded-full px-3 py-1 data-[state=on]:bg-green-600 data-[state=on]:text-white text-xs font-bold">KN</ToggleGroupItem>
+          </ToggleGroup>
+        </div>
         <motion.div initial="hidden" animate="visible" variants={containerVariants} className="w-full max-w-md">
           <Card className="w-full my-8">
             <CardHeader>
-              <Button variant="ghost" size="sm" onClick={() => setStep("farmer-login")} className="mb-2 w-fit">← Back</Button>
-              <CardTitle>Farmer Registration</CardTitle>
-              <CardDescription>Join FarmDirect to start selling</CardDescription>
+              <Button variant="ghost" size="sm" onClick={() => setStep("farmer-login")} className="mb-2 w-fit">← {t.back}</Button>
+              <CardTitle>{t.farmerRegistrationTitle}</CardTitle>
+              <CardDescription>{t.farmerRegistrationDescription}</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleFarmerRegister} className="space-y-3">
                 <div className="space-y-1">
-                  <Label htmlFor="reg-name">Full Name</Label>
+                  <Label htmlFor="reg-name">{t.fullName}</Label>
                   <Input
                     id="reg-name"
                     required
@@ -308,7 +355,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="reg-farmName">Farm Name</Label>
+                  <Label htmlFor="reg-farmName">{t.farmName}</Label>
                   <Input
                     id="reg-farmName"
                     required
@@ -317,7 +364,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="reg-email">Email</Label>
+                  <Label htmlFor="reg-email">{t.email}</Label>
                   <Input
                     id="reg-email"
                     type="email"
@@ -327,7 +374,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="reg-aadhar">Aadhar Number (12 digits)</Label>
+                  <Label htmlFor="reg-aadhar">{t.aadharNumber}</Label>
                   <Input
                     id="reg-aadhar"
                     required
@@ -338,7 +385,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="reg-pass">Password</Label>
+                  <Label htmlFor="reg-pass">{t.password}</Label>
                   <Input
                     id="reg-pass"
                     type="password"
@@ -348,7 +395,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="reg-loc">Location</Label>
+                  <Label htmlFor="reg-loc">{t.location}</Label>
                   <Input
                     id="reg-loc"
                     required
@@ -358,13 +405,17 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                   />
                 </div>
                 <Button type="submit" className="w-full mt-4" size="lg" disabled={loading}>
-                  {loading ? "Registering..." : "Register"}
+                  {loading ? t.registering : t.register}
                 </Button>
               </form>
             </CardContent>
           </Card>
         </motion.div>
-        <div className="mt-8 text-sm text-muted-foreground">Created by <span className="font-semibold">Team Innovators</span></div>
+        <div className="mt-8 text-center my-8">
+          <p className="text-sm text-gray-600 font-medium italic">
+            {t.createdBy} <span className="font-bold text-green-700 not-italic">{t.teamInnovators}</span>
+          </p>
+        </div>
       </div>
     );
   }

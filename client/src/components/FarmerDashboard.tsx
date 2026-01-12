@@ -7,6 +7,10 @@ import { OrdersView } from "./farmer/OrdersView";
 import { ProductsManagement } from "./farmer/ProductsManagement";
 import { AnalyticsView } from "./farmer/AnalyticsView";
 import { FarmProfileView } from "./farmer/FarmProfileView";
+import { useLanguage } from "../contexts/LanguageContext";
+import { Language } from "../lib/translations";
+import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
+import { AIAssistant } from "./AIAssistant";
 
 interface FarmerDashboardProps {
   userData: any;
@@ -15,6 +19,7 @@ interface FarmerDashboardProps {
 
 export function FarmerDashboard({ userData, onLogout }: FarmerDashboardProps) {
   const [activeTab, setActiveTab] = useState("orders");
+  const { language, setLanguage, t } = useLanguage();
 
   return (
     <div className="min-h-screen bg-background">
@@ -24,12 +29,19 @@ export function FarmerDashboard({ userData, onLogout }: FarmerDashboardProps) {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="font-semibold">{userData.name}</h1>
-              <p className="text-xs text-muted-foreground">Farmer Dashboard</p>
+              <p className="text-xs text-muted-foreground">{t.farmerDashboard}</p>
             </div>
-            <Button variant="outline" onClick={onLogout}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
+            <div className="flex items-center gap-3">
+              <ToggleGroup type="single" value={language} onValueChange={(val: Language) => val && setLanguage(val)} className="bg-white rounded-full p-1 shadow-md border border-green-100 hidden md:flex">
+                <ToggleGroupItem value="en" className="rounded-full px-3 py-1 data-[state=on]:bg-green-600 data-[state=on]:text-white text-xs font-bold">EN</ToggleGroupItem>
+                <ToggleGroupItem value="hi" className="rounded-full px-3 py-1 data-[state=on]:bg-green-600 data-[state=on]:text-white text-xs font-bold">HI</ToggleGroupItem>
+                <ToggleGroupItem value="kn" className="rounded-full px-3 py-1 data-[state=on]:bg-green-600 data-[state=on]:text-white text-xs font-bold">KN</ToggleGroupItem>
+              </ToggleGroup>
+              <Button variant="outline" onClick={onLogout}>
+                <LogOut className="w-4 h-4 mr-2" />
+                {t.logout}
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -40,34 +52,34 @@ export function FarmerDashboard({ userData, onLogout }: FarmerDashboardProps) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+              <CardTitle className="text-sm font-medium">{t.totalOrders}</CardTitle>
               <ShoppingBag className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-semibold text-muted-foreground">-</div>
-              <p className="text-xs text-muted-foreground">No orders yet</p>
+              <p className="text-xs text-muted-foreground">{t.noOrdersYet}</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Products</CardTitle>
+              <CardTitle className="text-sm font-medium">{t.activeProducts}</CardTitle>
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-semibold text-muted-foreground">-</div>
-              <p className="text-xs text-muted-foreground">Add products to get started</p>
+              <p className="text-xs text-muted-foreground">{t.addProductsToStart}</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Revenue</CardTitle>
+              <CardTitle className="text-sm font-medium">{t.revenue}</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-semibold text-muted-foreground">-</div>
-              <p className="text-xs text-muted-foreground">No revenue data yet</p>
+              <p className="text-xs text-muted-foreground">{t.noRevenueDataYet}</p>
             </CardContent>
           </Card>
         </div>
@@ -75,10 +87,10 @@ export function FarmerDashboard({ userData, onLogout }: FarmerDashboardProps) {
         {/* Main Dashboard Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="orders">Orders</TabsTrigger>
-            <TabsTrigger value="products">Products</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="profile">Farm Profile</TabsTrigger>
+            <TabsTrigger value="orders">{t.orders}</TabsTrigger>
+            <TabsTrigger value="products">{t.products}</TabsTrigger>
+            <TabsTrigger value="analytics">{t.analytics}</TabsTrigger>
+            <TabsTrigger value="profile">{t.farmProfile}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="orders" className="mt-6">
@@ -98,6 +110,7 @@ export function FarmerDashboard({ userData, onLogout }: FarmerDashboardProps) {
           </TabsContent>
         </Tabs>
       </div>
+      <AIAssistant />
     </div>
   );
 }

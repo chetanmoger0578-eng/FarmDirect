@@ -3,6 +3,7 @@ import { Product } from "../types";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardFooter } from "./ui/card";
 import { Badge } from "./ui/badge";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface ProductCardProps {
   product: Product;
@@ -10,6 +11,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onAddToCart }: ProductCardProps) {
+  const { t } = useLanguage();
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
       <div className="aspect-square overflow-hidden">
@@ -44,7 +46,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
           disabled={product.stock === 0}
         >
           <ShoppingCart className="w-4 h-4 mr-2" />
-          Add to Cart
+          {t.addToCart}
         </Button>
       </CardFooter>
     </Card>
